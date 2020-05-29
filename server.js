@@ -16,9 +16,9 @@ const SALT_ROUNDS = 10;
 const tokenGenerator = new uuidToken();
 
 //spotify API constants
-const CLIENT_ID = ""
-const CLIENT_SECRET = ""
-const redirect_uri = window.location.origin+"/spotify/callback"
+const CLIENT_ID = "YOUR CLIENT ID"
+const CLIENT_SECRET = "YOUR CLIENT SECRET"
+const redirect_uri = "YOUR URL"+"/spotify/callback"
 
 //pushes public folder
 app.use(express.static(__dirname + "/public"));
