@@ -1,11 +1,13 @@
 //js code for the listening side
 const radioName = window.location.pathname.split('/')[1] + "'s Radio"
+const radioTitle = document.querySelector("#radioTitle")
+const reconnectInfo = document.querySelector("#songInfo").innerHTML
 
 //updating page display
 window.onload = () =>{
   document.querySelector("title").innerText = radioName;
-  document.querySelector("h1").innerText= radioName;
-  document.querySelector("#songInfo").innerHTML = `<code>Switch to the device called ${radioName} on your Spotify application`
+  document.querySelector("#host").innerText += " "+ window.location.pathname.split('/')[1];
+  document.querySelectorAll(".connectInstruc").forEach(instance=>{instance.innerText+=" "+radioName})
 }
 
 //joins the socket for the page
@@ -14,6 +16,7 @@ const socket = io.connect(window.location.href)
 //webSDK event
 window.onSpotifyWebPlaybackSDKReady = () => {
   let device = null
+  let stored_id = null
   let currentSong = {}
   //getting data
   fetch("/account/data",{
@@ -43,40 +46,59 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     }});
       player.addListener('account_error', ({ message }) => { console.error(message); });
       player.addListener('playback_error', ({ message }) => { console.error(message); });
+      
       //joining the radio by switching devices
       player.addListener('ready', ({ device_id }) => {
-        device = device_id
-        if(currentSong.paused){
-          updateSong(currentSong)
+        stored_id = device_id
+        if(currentSong.song){
+        updateSong(currentSong)
+      }
+      });
+
+      //user tries to updatre radio
+      player.addListener('player_state_changed', state=>{
+        if (state == null){
+          device = null
+          document.querySelector("#songInfo").innerHTML = reconnectInfo
         }
-      });
-
-      //leaving radio 
-      player.addListener('not_ready', ({ device_id }) => {
-        device = null
-      });
-
-
-      // Connect to the player!
-      player.connect();
-
-      //updating the current song
-      const updateSong = (song) =>{
-        //if song is different
-        if(device != null && (!currentSong.song || currentSong.song.uri!=song.song.uri)){
-          currentSong.song = song.song
-          console.log(song.song.uri)
+        else if (device == null){
+          device = stored_id
           fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`,{
             method: "PUT",
             body: JSON.stringify({
-              uris: [song.song.uri],
-              position_ms: song.position
+              uris: [currentSong.song.uri],
+              position_ms: currentSong.position
             }),
             headers:{
               'Content-Type': 'application/json',
               'Authorization': "Bearer "+spotify_token
             }
           })
+          document.querySelector("#songInfo").innerHTML = `<img src = ${currentSong.song.album.images[0].url}><div><p>${currentSong.song.name}</p><p>${currentSong.song.artists[0].name}</p></div>`
+      }})
+
+      // Connect to the player!
+      player.connect();
+
+      //updating the current song
+      const updateSong = (song) =>{
+        radioTitle.innerHTML = song.radioTitle
+        //if song is different
+        if(device != null){
+        if((!currentSong.song || currentSong.song.uri!=song.song.uri)){
+          currentSong.song = song.song
+          fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`,{
+            method: "PUT",
+            body: JSON.stringify({
+              uris: [song.song.uri],
+              position_ms: 0
+            }),
+            headers:{
+              'Content-Type': 'application/json',
+              'Authorization': "Bearer "+spotify_token
+            }
+          })
+          updateSong(currentSong)
         }
         //if just position is different
         else if(currentSong.position!=song.position){
@@ -86,11 +108,22 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         //if song is paused
         if(currentSong.paused!=song.paused){
           currentSong.paused = song.paused
-          player.togglePlay()
+          if(song.paused){
+            player.pause()
+            document.querySelector("#pause").src = "static/Pause.png"
+          }
+          else{
+            player.resume()
+            document.querySelector("#pause").src = "static/Play.png"
+          }
         }
         //display
-        document.querySelector("#songInfo").innerHTML = `<h1>${currentSong.song.name}</h1><h2>${currentSong.song.artists[0].name}</h2><img src = ${currentSong.song.album.images[0].url}>`
+        document.querySelector("#songInfo").innerHTML = `<img src = ${currentSong.song.album.images[0].url}><div><p>${currentSong.song.name}</p><p>${currentSong.song.artists[0].name}</p></div>`
       }
+      else{
+        currentSong = song
+      }
+    }
 
       //listens for the socket
       socket.on('command', (msg)=>{

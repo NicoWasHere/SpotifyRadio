@@ -2,12 +2,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/navbar.css">
+  <link rel="stylesheet" href="/listen.css">
   <title>Listening</title>
 </head>
 <body>
-  <h1></h1>
-  <div id = "songInfo">
+  <div id="navbar">
+    <a href="/" id="logo"><img src="/static/Spotify_Icon_RGB_White.png" width="50" height="50">
+        <p>Spotify Radio</p>
+    </a>
+    <div id="right">
+        <a class="logout right" href="/login">Logout</a>
+        <a class="right" href="/host">My Radio</a>
+        <a class="right" href="/account">Account</a>
+    </div>
+</div>
+<div id = "content">
+  <div id = "songInfo"><div id = "pre">
+    <code>Connect to the radio through a Spotify Player</code>
+    <div id = "bottom">
+    <img src = "static/Device_Panel_1.png" height = "80" width ="auto">
+    <code>⟶</code>
+    <img src = "static/NicoRadio.png" height = "80" width ="auto">
   </div>
+  </div>
+</div>
+  <div id = "radioInfo">
+    <img id = "pause" src = "static/Pause.png" height = "70" width = "auto">
+    <div><p id = "radioTitle">Title</p><p id = "host">Hosted by </p></div>
+  </div>
+</div>
   <script src = "redirect.js"></script>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script src="/socket.io/socket.io.js"></script>

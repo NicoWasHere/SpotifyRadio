@@ -1,8 +1,11 @@
 
 //js for a host to publish their spotify
-const songInfo = document.querySelector("#song")
+const songInfo = document.querySelector("#rightBody")
+const disconnectInfo = songInfo.innerHTML
 const streamButton = document.querySelector("button")
+const title = document.querySelector("#title")
 const token = document.cookie.split('; ').find(row => row.startsWith('token')).split('=')[1];
+let user = ""
 let streaming = false
 let socket = null
 
@@ -17,8 +20,11 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         }
     //uses the data to create a web player
     }).then((data) => {
+    user = data.username
+    title.innerHTML = user+"'s Radio"
+    const link = document.querySelector("#radioLink").innerText = window.location.href+"/"+data.username
     streamButton.onclick = () => toggleStream(data.username)
-    const spotify_token = data.spotify_token;
+    let spotify_token = data.spotify_token;
     //contr
     const player = new Spotify.Player({
       name: 'Spotify Radio',
@@ -32,7 +38,14 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         if(message){
         fetch("/refresh",{
             method:"POST"
-        })
+        }).then((res)=>{
+            console.log(res)
+            if(res.status == 200){
+            return res.text()
+        }
+        }).then(data=>
+            spotify_token = data
+        )
         window.location.reload();
     }
      });
@@ -43,12 +56,13 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     player.addListener('player_state_changed', state => { 
         if(state != null){
         const currentSong = state.track_window.current_track
-        songInfo.innerHTML = `<h1>${currentSong.name}</h1><h2>${currentSong.artists[0].name}</h2><img src = ${currentSong.album.images[0].url}>`
+        songInfo.innerHTML = `<h1>Currently Playing</h1><img src = ${currentSong.album.images[0].url}><h1>${currentSong.name}</h1><h2>${currentSong.artists[0].name}</h2>`
         //pushes the updates to the server
         if(streaming){
         socket.emit('update', {
             token: token,
             data:{
+                radioTitle: title.innerHTML,
                 position: state.position,
                 paused: state.paused,
                 song: currentSong
@@ -58,7 +72,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         }
         //is the person doesn't have the radio device set
         else{
-            songInfo.innerHTML = "<code>Please select the device Spotify Radio on your Spotify App</code>"
+            songInfo.innerHTML = disconnectInfo
         }
     });
     player.connect();
@@ -73,6 +87,9 @@ const toggleStream = (username) =>{
         fetch("/start-stream",{
             method: "POST"
         })
+        socket.on('listenerCount',(count)=>{
+            document.querySelector("#listenerCount p").innerText = count + " listeners"
+        })
         streamButton.innerText = "Stop Radio"
       }
       else{
@@ -84,3 +101,24 @@ const toggleStream = (username) =>{
       }
   }
   
+//controls the title
+document.querySelector("#titleContainer").addEventListener("click",()=>title.focus())
+document.querySelector('#title').addEventListener('keydown', (evt) => {
+    if (evt.keyCode === 13) {
+        title.blur();
+    }
+});
+title.addEventListener("blur",()=>{
+    if(title.innerHTML.length==0){
+        title.innerHTML = user+"'s Radio"
+    }
+
+    fetch("/update-title",{
+        method: "POST",
+        body: JSON.stringify({title:title.innerHTML}),
+        headers: {
+        'Content-Type': 'application/json'
+        },
+    }
+    )
+})

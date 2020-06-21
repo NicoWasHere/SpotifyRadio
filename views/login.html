@@ -2,17 +2,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel = "stylesheet" href = "/login.css">
     <title>Log In</title>
 </head>
 <body>
-    <h1>Log In</h1>
-    <p></p>
-    <form>
-        <label>Email<input name = "email" type = "text"></label>
-        <label>Password<input name = "password" type = "password"></label>
+    <a href = "/" id = "logo"><img src = "/static/Spotify_Icon_RGB_White.png" width = "50" height="50"> <p>Spotify Radio</p></a>
+    <div id = "loginForm">
+    <h1>Welcome Back</h1>
+    <p id = "error"></p>
+    <form autocomplete="off">
+        <label>Email</label>
+        <input name = "email" placeholder = "Beans4Lyfe@beans.com" type = "text">
+       <label> Password</label>
+        <input name = "password" placeholder = "••••••••" type = "password">
         <input value = "Log In" type = "submit">
     </form>
     <a href = "/create-account">Don't have an account? Create one here</a>
+</div>
+   
     <script>
         const form = document.querySelector("form")
 
@@ -35,10 +43,11 @@
                     window.location = "/account"
                 }
                 else{
-                    document.querySelector("p").innerText = "*incorrect email or password"
+                    document.querySelector("#error").innerText = "*incorrect email or password"
                 }
             })
         }
     </script>
+    <script src = "redirect.js"></script>
 </body>
 </html>

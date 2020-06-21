@@ -13,11 +13,15 @@ fetch("/account/data",{
         return response.json()
     }
 }).then((data) => {
-    document.querySelector("#name").innerText = data.username
-    if(data.spotify_token){
+    if(data){
         //gets rid of the connect button
-        document.querySelector("div").innerHTML = ""
-}
+        document.querySelector("[name = username]").value = data.username
+        document.querySelector("[name = email]").value = data.email
+        document.querySelector("#connect-spotify").remove()
+    }
+    else{
+        document.querySelector("form").remove()
+    }
 });
 
 

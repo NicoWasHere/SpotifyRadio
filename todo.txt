@@ -1,0 +1,12 @@
+Spotify Radio
+=================================
+ - Style Homepage/build
+ - Add listener counts
+ - Add custom title
+ - Put it on a real server
+ - Show whether or not someone is streaming
+
+
+ Potential Changes:
+  - On connections the server sends the latest update but that will be behind in time
+    - Could make a request to the host for newer data

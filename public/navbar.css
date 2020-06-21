@@ -1,0 +1,43 @@
+body{
+    background: #445355;
+    font-family: "Roboto";
+    color: #ffffff;
+    margin: 0;
+}
+#navbar{
+    display: grid;
+    background: #354648;
+    grid-template-columns: 1fr 1fr;
+    padding: 20;
+    padding-left: 15;
+    align-items: center;
+}
+
+.right{
+    float: right;
+    margin: 10;
+    align-self: end;
+}
+
+#logo{
+    font-size: 35;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+    /* margin-top: 20; */
+    padding: 0;
+    
+}
+
+#logo p{
+    margin: 0;
+    margin-left: 10;
+    padding: 0;
+}
+
+#navbar,a {
+    text-decoration: none;
+    color: white;
+    font-size: 23;
+}

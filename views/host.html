@@ -1,15 +1,49 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/navbar.css">
+    <link rel="stylesheet" href="/host.css">
 </head>
+
 <body>
-    <div id = "song"></div>
-    <button>Start Radio</button>
-    <script src = "redirect.js"></script>
+    <div id="navbar">
+        <a href="/" id="logo"><img src="/static/Spotify_Icon_RGB_White.png" width="50" height="50">
+            <p>Spotify Radio</p>
+        </a>
+        <div id="right">
+            <a class="logout right" href="/login">Logout</a>
+            <a class="right" href="/host">My Radio</a>
+            <a class="right" href="/account">Account</a>
+        </div>
+    </div>
+    <div id="content">
+        <div id="leftBody">
+            <div id="titleContainer">
+                <p id="title" contenteditable="true" spellcheck="false">Title</p><img width="20" height="20"
+                    src="static/Pencil.png">
+            </div>
+            <div id="listenerCount"><img width="35" height="auto" src="static/Play.png"><p>0 Listeners</p></div>
+            <button>Start Radio</button>
+            <a id="radioLink"></a>
+        </div>
+        <div id="rightBody">
+            <div>
+                <h1>Connect to Spotify Radio</h1>
+                <label>1. Select Devices <img width="200" height="auto" src="/static/Device_Panel_1.png"></label>
+                <label>2. Connect to spotify Radio <img width="200" height="auto"
+                        src="/static/Device_Panel_2.png"></label>
+            </div>
+        </div>
+    </div>
+
+    <script src="redirect.js"></script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src = "host.js"></script>
+    <script src="host.js"></script>
 </body>
+
 </html>

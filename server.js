@@ -16,9 +16,9 @@ const SALT_ROUNDS = 10;
 const tokenGenerator = new uuidToken();
 
 //spotify API constants
-const CLIENT_ID = "YOUR CLIENT ID"
-const CLIENT_SECRET = "YOUR CLIENT SECRET"
-const redirect_uri = "YOUR URL"+"/spotify/callback"
+const CLIENT_ID = "94353135a0fe4bf1ad43d5b5aaffdc63"
+const CLIENT_SECRET = "4af7105cd3c84ef199975db9711ce033"
+const redirect_uri = "http://localhost:3000/spotify/callback"
 
 //pushes public folder
 app.use(express.static(__dirname + "/public"));
@@ -35,9 +35,12 @@ const tokens = JSON.parse(fs.readFileSync(__dirname + "/database/tokens.json"));
 app.post("/start-stream",(req,res)=>{
   const hostToken = req.cookies.token
   let current_song = {}
+  stations[tokens[hostToken].username].streaming = true
   const currentStation = io.of('/'+tokens[hostToken].username)
     .on('connection',(socket)=>{
-      socket.emit('command',current_song)
+      socket.emit('command',current_song) //will backtrack everyone
+      currentStation.emit('listenerCount',currentStation.clients().server.engine.clientsCount)
+      stations[tokens[hostToken].username].listenerCount = currentStation.clients().server.engine.clientsCount
       socket.on('update',(command)=>{
         if(command.token == hostToken){
           current_song = command.data
@@ -51,9 +54,40 @@ app.post("/start-stream",(req,res)=>{
 //stops the stream on the hosts socket
 app.post("/stop-stream",(req,res)=>{
   const hostToken = req.cookies.token
-  let current_song = {}
+  stations[tokens[hostToken].username].streaming = false
   const currentStation = io.of('/'+tokens[hostToken].username)
   currentStation.removeAllListeners()
+  res.sendStatus(200)
+})
+
+app.post("/update-title", (req,res)=>{
+  const hostToken = req.cookies.token
+  stations[tokens[hostToken].username].title = req.body.title
+  fs.writeFileSync("./database/stations.json",JSON.stringify(stations));
+  res.sendStatus(200)
+})
+
+//get info about a specific radio
+app.post("/get-info/:radio",(req,res)=>{
+  const radio = stations[req.params.radio]
+  const info = {
+    title: radio.title,
+    listenerCount: radio.listenerCount,
+    streaming: radio.streaming
+  }
+  res.status(200).send(info)
+})
+//get info about all radios
+app.post("/get-info",(req,res)=>{
+  info = {}
+  console.log(Object.entries(stations).sort((a,b)=>{
+    if (!a[1].listenerCount){a[1].listenerCount = 0}
+    if (!b[1].listenerCount){b[1].listenerCount = 0}
+    return a[1].listenerCount-b[1].listenerCount}))
+  // for (const [key, value] of Object.entries(stations)) {
+  //   console.log(key, value);
+
+  // }
   res.sendStatus(200)
 })
 
@@ -63,6 +97,7 @@ app.post("/account/data",(req,res)=>{
   if(stationData){
     const accountData = {
       username: tokens[req.cookies.token].username,
+      email: tokens[req.cookies.token].email,
       spotify_token: stationData.spotify_token,
       refresh_token: stationData.refresh_token
     }
@@ -161,14 +196,16 @@ app.post("/refresh",(req,res)=>{
       let data = JSON.parse(d);
       if(data.refresh_token){station.refresh_token = data.refresh_token;}
       station.spotify_token = data.access_token;
+      res.status(200).send(data.access_token);
     });
     response.on("error", e => {
       console.log(e);
+      res.sendStatus(309);
     });
   });
   getToken.write(body);
   getToken.end();
-  res.sendStatus(200);
+
 }else{res.sendStatus(409)}
 })
 
@@ -189,7 +226,8 @@ app.post("/create-account", (req,res)=>{
       "token": token
     }
     tokens[token] = {
-      "username":req.body.username
+      "username":req.body.username,
+      "email":req.body.email
     }
     fs.writeFileSync("./database/accounts.json",JSON.stringify(accounts));
     fs.writeFileSync("./database/tokens.json",JSON.stringify(tokens));
@@ -199,8 +237,8 @@ app.post("/create-account", (req,res)=>{
 
 //login request
 app.post("/login",(req,res)=>{
-  if(accounts[req.body.email]&&bcrypt.compareSync(req.body.password,accounts[req.body.email].password)){
-    res.cookie("token",accounts[req.body.email].token).sendStatus(200)
+  if(accounts[req.body.email.toLowerCase()]&&bcrypt.compareSync(req.body.password,accounts[req.body.email.toLowerCase()].password)){
+    res.cookie("token",accounts[req.body.email.toLowerCase()].token).sendStatus(200)
   }
   else{
     res.sendStatus(401)

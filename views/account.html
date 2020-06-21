@@ -2,14 +2,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel = "stylesheet" href = "/account.css">
+    <link rel = "stylesheet" href = "/navbar.css">
     <title>Account</title>
 
 </head>
 <body>
-   <p id = "name"></p>
-   <div>
-   <button id = "connect-spotify">Connect Spotify</button>
-   </div>
+    <div id = "navbar">
+        <a href = "/" id = "logo"><img src = "/static/Spotify_Icon_RGB_White.png" width = "50" height="50"> <p>Spotify Radio</p></a>
+        <div id = "right">
+        <a class = "logout right" href = "/login">Logout</a>
+        <a class = "right" href = "/host">My Radio</a>
+        <a class = "right" href = "/account">Account</a>
+    </div>
+    </div>
+    <div id = "info">
+   <h1>Account</h1>
+   <button id = "connect-spotify"><img src = "/static/Spotify_Icon_RGB_White.png" width = "65" height="65"> Connect Spotify</button>
+   <form autocomplete="off">
+    <label>Username</label>
+    <input name = "username" type = "text">
+   <label> Email</label>
+    <input name = "email" type = "email">
+    <input value = "Update Account" type = "submit">
+</form>
+<a class = "logout" href = "/login">Logout</a>
+</div>
+
+   <script src = "redirect.js"></script>
    <script src = "account.js"></script>
+   <script src = "logout.js"></script>
 </body>
 </html>
