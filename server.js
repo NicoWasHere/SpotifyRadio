@@ -16,8 +16,8 @@ const SALT_ROUNDS = 10;
 const tokenGenerator = new uuidToken();
 
 //spotify API constants
-const CLIENT_ID = "94353135a0fe4bf1ad43d5b5aaffdc63"
-const CLIENT_SECRET = "4af7105cd3c84ef199975db9711ce033"
+const CLIENT_ID = ""
+const CLIENT_SECRET = ""
 const redirect_uri = "http://localhost:3000/spotify/callback"
 
 //pushes public folder
