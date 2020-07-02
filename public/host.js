@@ -22,7 +22,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     }).then((data) => {
     user = data.username
     title.innerHTML = user+"'s Radio"
-    const link = document.querySelector("#radioLink").innerText = window.location.href+"/"+data.username
+    const link = document.querySelector("#radioLink").innerText = window.location.origin+"/"+data.username
     streamButton.onclick = () => toggleStream(data.username)
     let spotify_token = data.spotify_token;
     //contr

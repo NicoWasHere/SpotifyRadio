@@ -1,9 +1,8 @@
 Spotify Radio
 =================================
+ - Fix data structures so that capitalization doesn't matter
  - Style Homepage/build
- - Add listener counts
  - Add custom title
- - Put it on a real server
  - Show whether or not someone is streaming
 
 

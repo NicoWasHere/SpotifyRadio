@@ -1,9 +1,50 @@
-<html>
-  <head>
-    <title>Home</title>
-  </head>
-  <body>
-    Welcome to Spotify Radio! To host a session go to /host To join a session go to /{radioName}
-  </body>
-  <script src = "redirect.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel = "stylesheet" href = "/index.css">
+    <link rel = "stylesheet" href = "/navbar.css">
+    <title>Spotify Radio</title>
+</head>
+<body>
+  <div id = "navbar">
+    <a href = "/" id = "logo"><img src = "/static/Spotify_Icon_RGB_White.png" width = "50" height="50"> <p>Spotify Radio</p></a>
+    <div id = "right">
+    <a class = "logout right" href = "/login">Logout</a>
+    <a class = "right" href = "/host">My Radio</a>
+    <a class = "right" href = "/account">Account</a>
+</div>
+</div>
+<div id = "content">
+  <div id = "radios">
+    <h1>Top Radios</h1>
+  </div>
+    <script src="redirect.js"></script>
+    <script src = "logout.js"></script>
+    <script>
+       const browse = document.querySelector("#radios")
+      fetch("/get-info",{
+        method: "POST",
+      }).then((response)=>{
+    if(response.status == 200){
+        return response.json()
+    }
+}).then((data) => {
+  console.log(data)
+  data.forEach(element => {
+    browse.innerHTML+= `<a class = "radioBox" href = "/${element[0]}">
+      <div class = "section">
+      <img height = "30" width = "auto" src = "static/Play.png">
+      <p>${(element[1].title)?element[1].title:element[0]+"'s radio"}</p>
+      </div>
+      <div class = "section">
+      <p id ="count">${element[1].listenerCount}</p>
+      <img height = "30" width = "auto" src = "static/headphones.png">
+      </div>
+      </a>`
+  });
+})
+    </script>
+</body>
 </html>

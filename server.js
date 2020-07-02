@@ -15,10 +15,6 @@ const querystring = require("querystring");
 const SALT_ROUNDS = 10;
 const tokenGenerator = new uuidToken();
 
-//spotify API constants
-const CLIENT_ID = "94353135a0fe4bf1ad43d5b5aaffdc63"
-const CLIENT_SECRET = "4af7105cd3c84ef199975db9711ce033"
-const redirect_uri = "http://localhost:3000/spotify/callback"
 
 //pushes public folder
 app.use(express.static(__dirname + "/public"));
@@ -30,17 +26,23 @@ app.use(cookieParser())
 const stations = JSON.parse(fs.readFileSync(__dirname + "/database/stations.json"));
 const accounts = JSON.parse(fs.readFileSync(__dirname + "/database/accounts.json"));
 const tokens = JSON.parse(fs.readFileSync(__dirname + "/database/tokens.json"));
+const keys = JSON.parse(fs.readFileSync(__dirname + "/database/keys.json"));
+
+//spotify API constants
+const CLIENT_ID = keys.CLIENT_ID
+const CLIENT_SECRET = keys.CLIENT_SECRET
+const redirect_uri = "http://localhost:3000/spotify/callback"
 
 //starts the stream on the hosts socket
 app.post("/start-stream",(req,res)=>{
   const hostToken = req.cookies.token
   let current_song = {}
-  stations[tokens[hostToken].username].streaming = true
-  const currentStation = io.of('/'+tokens[hostToken].username)
+  stations[tokens[hostToken].username.toLowerCase()].streaming = true
+  const currentStation = io.of('/'+tokens[hostToken].username.toLowerCase())
     .on('connection',(socket)=>{
       socket.emit('command',current_song) //will backtrack everyone
       currentStation.emit('listenerCount',currentStation.clients().server.engine.clientsCount)
-      stations[tokens[hostToken].username].listenerCount = currentStation.clients().server.engine.clientsCount
+      stations[tokens[hostToken].username.toLowerCase()].listenerCount = currentStation.clients().server.engine.clientsCount
       socket.on('update',(command)=>{
         if(command.token == hostToken){
           current_song = command.data
@@ -54,22 +56,22 @@ app.post("/start-stream",(req,res)=>{
 //stops the stream on the hosts socket
 app.post("/stop-stream",(req,res)=>{
   const hostToken = req.cookies.token
-  stations[tokens[hostToken].username].streaming = false
-  const currentStation = io.of('/'+tokens[hostToken].username)
+  stations[tokens[hostToken].username.toLowerCase()].streaming = false
+  const currentStation = io.of('/'+tokens[hostToken].username.toLowerCase())
   currentStation.removeAllListeners()
   res.sendStatus(200)
 })
 
 app.post("/update-title", (req,res)=>{
   const hostToken = req.cookies.token
-  stations[tokens[hostToken].username].title = req.body.title
+  stations[tokens[hostToken].username.toLowerCase()].title = req.body.title
   fs.writeFileSync("./database/stations.json",JSON.stringify(stations));
   res.sendStatus(200)
 })
 
 //get info about a specific radio
 app.post("/get-info/:radio",(req,res)=>{
-  const radio = stations[req.params.radio]
+  const radio = stations[req.params.radio.toLowerCase()]
   const info = {
     title: radio.title,
     listenerCount: radio.listenerCount,
@@ -80,20 +82,16 @@ app.post("/get-info/:radio",(req,res)=>{
 //get info about all radios
 app.post("/get-info",(req,res)=>{
   info = {}
-  console.log(Object.entries(stations).sort((a,b)=>{
+  info = Object.entries(stations).sort((a,b)=>{
     if (!a[1].listenerCount){a[1].listenerCount = 0}
     if (!b[1].listenerCount){b[1].listenerCount = 0}
-    return a[1].listenerCount-b[1].listenerCount}))
-  // for (const [key, value] of Object.entries(stations)) {
-  //   console.log(key, value);
-
-  // }
-  res.sendStatus(200)
+    return b[1].listenerCount-a[1].listenerCount})
+    res.status(200).send(info.slice(0,7))
 })
 
 //getting data about the account logged in
 app.post("/account/data",(req,res)=>{
-  const stationData = stations[tokens[req.cookies.token].username]
+  const stationData = stations[tokens[req.cookies.token].username.toLowerCase()]
   if(stationData){
     const accountData = {
       username: tokens[req.cookies.token].username,
@@ -157,7 +155,8 @@ app.get("/spotify/callback",(req,res)=>{
         let user = {}
         user.spotify_token = data.access_token
         user.refresh_token = data.refresh_token
-        stations[tokens[req.cookies.token].username]=user
+        user.title = tokens[req.cookies.token].username+"'s Radio"
+        stations[tokens[req.cookies.token].username.toLowerCase()]=user
         fs.writeFileSync("./database/stations.json",JSON.stringify(stations));
       });
       response.on("error", e => {
@@ -172,8 +171,8 @@ app.get("/spotify/callback",(req,res)=>{
 
 //refreshing the access token
 app.post("/refresh",(req,res)=>{
-  if(req.cookies.token && stations[tokens[req.cookies.token].username]){
-  const station = stations[tokens[req.cookies.token].username]
+  if(req.cookies.token && stations[tokens[req.cookies.token].username.toLowerCase()]){
+  const station = stations[tokens[req.cookies.token].username.toLowerCase()]
   const body = querystring.stringify({
     grant_type: "refresh_token",
     refresh_token: station.refresh_token
@@ -269,7 +268,7 @@ app.get("/create-account",(req,res)=>{
 
 //router for channels. routes everthing to the watch page but lets the url specify channel
 app.get("/:room", (req, res) => {
-  if (!stations[req.params.room]){
+  if (!stations[req.params.room.toLowerCase()]){
     res.send(req.params.room+" is not a broadcaster");
   }
   else{

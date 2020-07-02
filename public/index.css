@@ -1,0 +1,43 @@
+#content{
+    display: flex;
+    flex-direction: column;
+    align-items:  center;
+}
+
+.radioBox{
+    display: flex;
+    flex-direction: row;
+    width: 60vw;
+    background: #354648;
+  
+    margin: 10;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.radioBox p{
+    font-size: 30;
+    position: relative;
+    bottom: 3;
+    margin-left: 10;
+    margin-right: 10;
+}
+
+.radioBox:hover{
+    outline: 3px solid white;
+}
+
+.section{
+    display: flex;
+    align-items: baseline;
+    margin-left: 20;
+    margin-right: 20;
+}
+
+#count{
+    color: #e4e4e4;
+}
+
+h1{
+    margin-left: 20;
+}
