@@ -1,6 +1,7 @@
 .DS_Store
 node_modules/
 todo.txt
-accounts.json
-stations.json
-tokens.json
+database/accounts.json
+database/stations.json
+database/tokens.json
+database/keys.json
