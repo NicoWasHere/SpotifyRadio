@@ -31,6 +31,7 @@
                     password:form.elements["password"].value
                 }
             form.elements["password"].value = ""
+            if(data.username.match(/^([0-9]|[a-z])+([0-9a-z]+)$/i)){
             fetch("/create-account",{
                 method: "POST",
                 body: JSON.stringify(data),
@@ -43,13 +44,18 @@
                     window.location = "/account"
                 }
                 else if(response.status == 403){
-                    document.querySelector("p").innerText = "*username is already taken"
+                    document.querySelector("#error").innerText = "*username is unavailable"
                 }
                 else if(response.status == 409){
-                    document.querySelector("p").innerText = "*email is already in use"
+                    document.querySelector("#error").innerText = "*email is already in use"
                 }
             })
         }
+        else{
+            document.querySelector("#error").innerText = "*username must only contain alphanumeric characters"
+        }
+              
+    }
     </script>
     <script src = "redirect.js"></script>
 </body>

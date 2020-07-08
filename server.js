@@ -210,7 +210,9 @@ app.post("/refresh",(req,res)=>{
 
 //post request to create a new account
 app.post("/create-account", (req,res)=>{
-  if(stations[(req.body.username).toLowerCase()]){
+  const blacklist = ["create-account","spotify","login","host","listen","account","help"]
+
+  if(stations[(req.body.username).toLowerCase()] || blacklist.indexOf(req.body.username.toLowerCase())!= -1){
     res.sendStatus(403);
   }
   else if(accounts[(req.body.email).toLowerCase()]){
