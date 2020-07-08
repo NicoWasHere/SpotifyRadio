@@ -5,4 +5,4 @@ This project uses the Spotify Web SDK to allow users to host radio stations wher
 
 The code is for a node.JS server using express. The backend is simply json files but all passwords are hashed for security. 
 
-This project was made for an event called !(https://scottkwang.github.io/CodeWithFriends-Spring2020/)[Code With Friends].
+This project was made for an event called [Code With Friends](https://scottkwang.github.io/CodeWithFriends-Spring2020/).
